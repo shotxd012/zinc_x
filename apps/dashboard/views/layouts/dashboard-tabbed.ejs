@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <%- include('./partials/header.ejs') %>
+  </head>
+
+  <body class="bg-bg-page">
+    <%- include('./partials/navbar-dashboard.ejs') %>
+
+    <div class="flex overflow-hidden pt-16">
+      <%- include('./partials/sidebar.ejs') %>
+
+      <div id="main-content" class="relative h-full w-full overflow-y-auto lg:ml-64">
+        <main class="container mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          <% if (locals.breadcrumb && locals.breadcrumb === true) { %> <%- include('./partials/breadcrumb.ejs') %> <% }
+          %>
+
+          <section class="mb-6">
+            <div class="border-border bg-bg-panel flex items-center justify-between rounded-lg border p-4 shadow-sm">
+              <div class="flex items-center">
+                <div class="icon-container bg-bg-interactive flex h-12 w-12 items-center justify-center rounded-full">
+                  <i class="<%= plugin.icon %> text-text text-xl"></i>
+                </div>
+                <div class="ml-3">
+                  <h2 class="text-text text-lg font-semibold"><%= tr(`${plugin.name}:TITLE`) %></h2>
+                  <p class="text-text-muted text-sm"><%= tr(`${plugin.name}:DESCRIPTION`) %></p>
+                </div>
+              </div>
+
+              <div>
+                <% if (plugin.name !== "core") { %>
+                <label
+                  class="relative flex cursor-pointer items-center"
+                  x-data="{
+                    async togglePlugin($event) {
+                      try {
+                        const response = await fetch(`/dashboard/<%= guild.id %>/<%= plugin.name %>?operation=toggle`, {
+                          method: 'PUT',
+                          body: JSON.stringify({ plugin_toggle: $event.target.checked }),
+                          headers: { 'Content-Type': 'application/json' }
+                        });
+                        if (!response.ok) throw new Error('Failed to toggle plugin');
+                        Alpine.store('toast').show('Plugin status updated successfully', 'success');
+                      } catch (error) {
+                        $event.target.checked = !$event.target.checked;
+                        Alpine.store('toast').show(error.message, 'error');
+                      }
+                    }
+                  }">
+                  <input
+                    type="checkbox"
+                    id="plugin-toggle"
+                    class="sr-only"
+                    @change="togglePlugin($event)"
+                    x-bind:checked="<%= coreSettings.enabled_plugins.includes(plugin.name) %>" />
+                  <span class="toggle-bg border-border bg-bg-interactive h-6 w-11 rounded-full border"></span>
+                </label>
+                <% } %>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-6">
+            <div class="border-border mb-4 overflow-x-auto overflow-y-hidden border-b">
+              <ul
+                class="-mb-px flex whitespace-nowrap text-center text-sm font-medium"
+                id="default-tab"
+                data-tabs-toggle="#default-tab-content"
+                role="tablist">
+                <!-- Settings Tab -->
+                <% if (locals.settingsTab !== false) { %>
+                <li class="me-2" role="presentation">
+                  <button
+                    class="text-text-muted hover:text-text inline-block rounded-t-lg border-b-2 border-transparent p-4"
+                    id="settings-tab"
+                    data-tabs-target="#settings"
+                    type="button"
+                    role="tab"
+                    aria-controls="settings"
+                    aria-selected="true">
+                    <%= tr("TABS.SETTINGS") %>
+                  </button>
+                </li>
+                <% } %> <% if (locals.tabs && locals.tabs.length > 0) { %>
+                <!-- Custom Tabs -->
+                <% locals.tabs.forEach((tab) => { %> <% const tabId = tab.replace(/ /g, "-").toLowerCase() %>
+                <li class="me-2" role="presentation">
+                  <button
+                    class="text-text-muted hover:text-text inline-block rounded-t-lg border-b-2 border-transparent p-4"
+                    id="<%= tabId %>-tab"
+                    data-tabs-target="#<%= tabId %>"
+                    type="button"
+                    role="tab"
+                    aria-controls="<%= tabId %>"
+                    aria-selected="false">
+                    <%= tab %>
+                  </button>
+                </li>
+                <% }) %> <% } %>
+
+                <!-- Prefix Commands Tab -->
+                <% if (pluginCmds.prefix && pluginCmds.prefix.length > 0) { %>
+                <li class="me-2" role="presentation">
+                  <button
+                    class="text-text-muted hover:text-text inline-block rounded-t-lg border-b-2 border-transparent p-4"
+                    id="prefix-commands-tab"
+                    data-tabs-target="#prefix-commands"
+                    type="button"
+                    role="tab"
+                    aria-controls="commands"
+                    aria-selected="false">
+                    <span class="hidden sm:inline"><%= tr("TABS.PREFIX") %></span>
+                    <span class="sm:hidden"><%= tr("TABS.PREFIX_SHORT") %></span>
+                  </button>
+                </li>
+                <% } %>
+
+                <!-- Slash Commands Tab -->
+                <% if (pluginCmds.slash && pluginCmds.slash.length > 0) { %>
+                <li class="me-2" role="presentation">
+                  <button
+                    class="text-text-muted hover:text-text inline-block rounded-t-lg border-b-2 border-transparent p-4"
+                    id="slash-commands-tab"
+                    data-tabs-target="#slash-commands"
+                    type="button"
+                    role="tab"
+                    aria-controls="slash-commands"
+                    aria-selected="false">
+                    <span class="hidden sm:inline"><%= tr("TABS.SLASH") %></span>
+                    <span class="sm:hidden"><%= tr("TABS.SLASH_SHORT") %></span>
+                  </button>
+                </li>
+                <% } %>
+              </ul>
+            </div>
+            <div id="default-tab-content">
+              <!-- Settings Tab Content -->
+              <div class="hidden" id="settings" role="tabpanel" aria-labelledby="settings-tab"><%- body %></div>
+
+              <% if (locals.tabs && locals.tabs.length > 0) { %>
+              <!-- Custom Tabs Content -->
+              <% locals.tabs.forEach((tab) => { %> <% const tabId = tab.replace(/ /g, "-").toLowerCase() %>
+              <div class="hidden" id="<%= tabId %>" role="tabpanel" aria-labelledby="<%= tabId %>-tab">
+                <%- locals[tab] %>
+              </div>
+              <% }) %> <% } %>
+
+              <!-- Prefix Commands Tab Content -->
+              <% if (pluginCmds.prefix && pluginCmds.prefix.length > 0) { %>
+              <div
+                class="border-border bg-bg-panel hidden rounded-lg border p-4 shadow-sm"
+                id="prefix-commands"
+                role="tabpanel"
+                aria-labelledby="prefix-commands-tab"
+                x-data="{
+                  saving: false,
+                  async savePrefix() {
+                    if (this.saving) return;
+                    this.saving = true;
+                    const formData = new FormData(document.querySelector('#prefix-form'));
+                    try {
+                      const response = await fetch(`/dashboard/<%= guild.id %>/<%= plugin.name %>?operation=prefix_commands_toggle`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(formData)
+                      });
+                      if (response.ok) {
+                        Alpine.store('toast').show('Prefix commands updated successfully', 'success');
+                      } else {
+                        throw new Error('Failed to update prefix commands');
+                      }
+                    } catch (error) {
+                      Alpine.store('toast').show(error.message, 'error');
+                    } finally {
+                      this.saving = false;
+                    }
+                  }
+                }">
+                <form id="prefix-form" @submit.prevent="savePrefix">
+                  <div class="mb-3">
+                    <% pluginCmds.prefix.forEach((cmd) => { %>
+                    <div class="mb-3 flex items-center justify-between">
+                      <div class="flex flex-grow flex-col">
+                        <div class="text-text mb-1 text-sm font-semibold">
+                          <%= coreSettings.prefix %><%= cmd.name %>
+                        </div>
+                        <div class="text-text-muted text-sm font-normal"><%= tr(cmd.description) %></div>
+                      </div>
+                      <label for="prefix_<%= cmd.name %>" class="relative flex cursor-pointer items-center">
+                        <% if (!coreSettings.disabled_prefix.includes(cmd.name)) { %>
+                        <input
+                          type="checkbox"
+                          name="prefix_<%= cmd.name %>"
+                          id="prefix_<%= cmd.name %>"
+                          class="sr-only"
+                          checked />
+                        <% } else { %>
+                        <input
+                          type="checkbox"
+                          name="prefix_<%= cmd.name %>"
+                          id="prefix_<%= cmd.name %>"
+                          class="sr-only" />
+                        <% } %>
+                        <span class="toggle-bg border-border bg-bg-interactive h-6 w-11 rounded-full border"></span>
+                      </label>
+                    </div>
+                    <% }) %>
+                  </div>
+                  <div class="border-border mt-4 flex items-center justify-between border-t pt-3 sm:pt-6">
+                    <div></div>
+                    <div class="flex-shrink-0">
+                      <button
+                        type="submit"
+                        :disabled="saving"
+                        class="bg-primary hover:bg-primary-dark focus:ring-primary inline-flex items-center rounded-lg px-3 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 disabled:opacity-50">
+                        <span x-text="saving ? '<%= tr('BTN_SAVING') %>' : '<%= tr('BTN_SAVE') %>'"></span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <% } %>
+              <!-- Slash Commands Tab Content -->
+              <% if (pluginCmds.slash && pluginCmds.slash.length > 0) { %>
+              <div
+                class="border-border bg-bg-panel hidden rounded-lg border p-4 shadow-sm"
+                id="slash-commands"
+                role="tabpanel"
+                aria-labelledby="slash-commands-tab"
+                x-data="{
+                  saving: false,
+                  async saveSlash() {
+                    if (this.saving) return;
+                    this.saving = true;
+                    const formData = new FormData(document.querySelector('#slash-form'));
+                    try {
+                      const response = await fetch(`/dashboard/<%= guild.id %>/<%= plugin.name %>?operation=slash_commands_toggle`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(formData)
+                      });
+                      if (response.ok) {
+                        Alpine.store('toast').show('Slash commands updated successfully', 'success');
+                      } else {
+                        throw new Error('Failed to update slash commands');
+                      }
+                    } catch (error) {
+                      Alpine.store('toast').show(error.message, 'error');
+                    } finally {
+                      this.saving = false;
+                    }
+                  }
+                }">
+                <form id="slash-form" @submit.prevent="saveSlash">
+                  <div class="mb-3">
+                    <% pluginCmds.slash.forEach((cmd) => { %>
+                    <div class="mb-3 flex items-center justify-between">
+                      <div class="flex flex-grow flex-col">
+                        <div class="text-text mb-1 text-sm font-semibold">/<%= cmd.name %></div>
+                        <div class="text-text-muted text-sm font-normal"><%= tr(cmd.description) %></div>
+                      </div>
+                      <label for="slash_<%= cmd.name %>" class="relative flex cursor-pointer items-center">
+                        <% if (!coreSettings.disabled_slash.includes(cmd.name)) { %>
+                        <input
+                          type="checkbox"
+                          name="slash_<%= cmd.name %>"
+                          id="slash_<%= cmd.name %>"
+                          class="sr-only"
+                          checked />
+                        <% } else { %>
+                        <input
+                          type="checkbox"
+                          name="slash_<%= cmd.name %>"
+                          id="slash_<%= cmd.name %>"
+                          class="sr-only" />
+                        <% } %>
+                        <span class="toggle-bg border-border bg-bg-interactive h-6 w-11 rounded-full border"></span>
+                      </label>
+                    </div>
+                    <% }) %>
+                  </div>
+                  <div class="border-border mt-4 flex items-center justify-between border-t pt-3 sm:pt-6">
+                    <div></div>
+                    <div class="flex-shrink-0">
+                      <button
+                        type="submit"
+                        :disabled="saving"
+                        class="bg-primary hover:bg-primary-dark focus:ring-primary inline-flex items-center rounded-lg px-3 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 disabled:opacity-50">
+                        <span x-text="saving ? '<%= tr('BTN_SAVING') %>' : '<%= tr('BTN_SAVE') %>'"></span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <% } %>
+            </div>
+          </section>
+        </main>
+
+        <% if (locals.footer && locals.footer === true) { %> <%- include('./partials/footer.ejs') %> <% } %>
+      </div>
+    </div>
+
+    <%- include('./partials/scripts.ejs') %>
+  </body>
+</html>

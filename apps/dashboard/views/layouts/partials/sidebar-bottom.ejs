@@ -1,0 +1,87 @@
+<div
+  class="bg-bg-panel absolute bottom-0 left-0 hidden w-full justify-center space-x-4 p-4 lg:flex"
+  sidebar-bottom-menu>
+  <a
+    href="#"
+    data-tooltip-target="tooltip-documentation"
+    class="text-text-muted hover:bg-bg-surface hover:text-text inline-flex cursor-pointer justify-center rounded p-2">
+    <i class="fa-solid fa-book text-text-muted group-hover:text-text h-5 w-5 flex-shrink-0 transition duration-75"></i>
+  </a>
+  <div
+    id="tooltip-documentation"
+    role="tooltip"
+    class="tooltip bg-bg-surface text-text invisible absolute z-10 inline-block rounded-lg px-3 py-2 text-sm font-medium opacity-0 shadow-sm transition-opacity duration-300"
+    sidebar-bottom-tooltip>
+    <%= tr('SIDEBAR.TIP_DOCUMENTATION') %>
+    <div class="tooltip-arrow" data-popper-arrow></div>
+  </div>
+  <a
+    href="https://github.com/strange-bot/strange-bot"
+    target="_blank"
+    data-tooltip-target="tooltip-settings"
+    class="text-text-muted hover:bg-bg-surface hover:text-text inline-flex cursor-pointer justify-center rounded p-2">
+    <i
+      class="fa-brands fa-github text-text-muted group-hover:text-text h-5 w-5 flex-shrink-0 transition duration-75"></i>
+  </a>
+  <div
+    id="tooltip-settings"
+    role="tooltip"
+    class="tooltip bg-bg-surface text-text invisible absolute z-10 inline-block rounded-lg px-3 py-2 text-sm font-medium opacity-0 shadow-sm transition-opacity duration-300">
+    <%= tr('SIDEBAR.TIP_GITHUB') %>
+    <div class="tooltip-arrow" data-popper-arrow></div>
+  </div>
+  <!-- Language Button -->
+  <button
+    type="button"
+    data-dropdown-toggle="language-dropdown"
+    class="text-text-muted hover:bg-bg-surface hover:text-text inline-flex cursor-pointer justify-center rounded p-2">
+    <img
+      src="https://cdn.jsdelivr.net/npm/country-flag-icons/3x2/<%= languagesMeta.find(l => l.name == locale)?.svg_code %>.svg"
+      class="mt-0.5 h-5 w-5 rounded-full"
+      alt="Current language flag" />
+  </button>
+
+  <!-- Dropdown -->
+  <div
+    class="divide-border bg-bg-panel z-50 my-4 hidden list-none divide-y rounded text-base shadow"
+    id="language-dropdown"
+    x-data="{
+        async changeLanguage(languageCode) {
+          try {
+            const response = await fetch('/api/language', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ language_code: languageCode })
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to change language');
+            }
+            
+            window.location.reload();
+          } catch (error) {
+            Alpine.store('toast').show(error.message, 'error');
+          }
+        }
+      }">
+    <ul class="py-1" role="none">
+      <% languagesMeta.forEach(function(lang) { %>
+      <li>
+        <a
+          href="#"
+          @click.prevent="changeLanguage('<%= lang.name %>')"
+          class="<%= locale === lang.name ? 'bg-bg-interactive' : '' %> text-text-muted hover:bg-bg-surface hover:text-text block px-4 py-2 text-sm"
+          role="menuitem">
+          <div class="inline-flex items-center">
+            <img
+              src="https://cdn.jsdelivr.net/npm/country-flag-icons/3x2/<%= lang.svg_code %>.svg"
+              class="mr-2 h-3.5 w-3.5 rounded-full"
+              alt="<%= lang.nativeName %> flag" />
+            <%= lang.nativeName %>
+          </div>
+        </a>
+      </li>
+      <% }); %>
+    </ul>
+  </div>
+</div>

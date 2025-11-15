@@ -1,0 +1,35 @@
+<div class="pb-6">
+  <nav class="border-border bg-bg-panel text-text-muted flex rounded-lg border px-5 py-3" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+      <li class="inline-flex items-center">
+        <a
+          href="/dashboard"
+          class="hover:text-primary-600 text-text-muted hover:text-text inline-flex items-center text-sm font-medium">
+          <i class="fas fa-home me-2.5 h-3 w-3" aria-hidden="true"></i>
+          <%= tr('SIDEBAR.SERVERS') %>
+        </a>
+      </li>
+
+      <% if (locals.guild) { %>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right text-text-muted mx-1 h-3 w-3" aria-hidden="true"></i>
+          <a
+            href="/dashboard/<%=guild.id%>"
+            class="hover:text-primary-600 text-text-muted hover:text-text ms-1 text-sm font-medium md:ms-2"
+            ><%=guild.name%></a
+          >
+        </div>
+      </li>
+      <% } %> <% if (locals.plugin) { %>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right text-text-muted mx-1 h-3 w-3" aria-hidden="true"></i>
+          <% const name = plugin.name.charAt(0).toUpperCase() + plugin.name.slice(1); %>
+          <span class="text-text-muted ms-1 text-sm font-medium md:ms-2"><%=name%></span>
+        </div>
+      </li>
+      <% } %>
+    </ol>
+  </nav>
+</div>

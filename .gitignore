@@ -1,0 +1,22 @@
+# Folders
+.vscode/
+node_modules/
+logs/
+
+# Dashboard
+apps/dashboard/public/js
+apps/dashboard/public/css
+
+
+# Files
+.DS_Store
+.env
+.env.docker
+
+# Extensions
+*.log
+*.tar.gz
+
+# Plugins
+plugins/*
+!plugins/registry.json
