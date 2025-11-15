@@ -1,4 +1,4 @@
-# Strange Bot
+# zinc_x
 
 A premium Discord bot with a plugin-based architecture that allows for easy extensibility and customization.
 
@@ -153,7 +153,7 @@ pnpm dev:dashboard
 
 ## Plugin System
 
-Strange Bot uses a modular plugin system that allows for easy extension of functionality. Plugins are automatically loaded from the plugins directory.
+zinc_x uses a modular plugin system that allows for easy extension of functionality. Plugins are automatically loaded from the plugins directory.
 
 ### Creating a Plugin
 

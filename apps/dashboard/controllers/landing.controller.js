@@ -5,6 +5,6 @@
 module.exports.get = async function (_req, res) {
     res.render("index", {
         layout: "layouts/landing",
-        title: "Strange Bot - The Open Source, Extensible Discord Bot Platform",
+        title: "zinc_x - The Open Source, Extensible Discord Bot Platform",
     });
 };
