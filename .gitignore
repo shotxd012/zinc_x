@@ -16,6 +16,7 @@ apps/dashboard/public/css
 # Extensions
 *.log
 *.tar.gz
+.qoder
 
 # Plugins
 plugins/*
